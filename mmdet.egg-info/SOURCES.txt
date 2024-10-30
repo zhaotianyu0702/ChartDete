@@ -12,8 +12,11 @@ mmdet.egg-info/not-zip-safe
 mmdet.egg-info/requires.txt
 mmdet.egg-info/top_level.txt
 mmdet/.mim/model-index.yml
-mmdet/.mim/configs/cascade_rcnn_swin-t_fpn_LGM_SENet_BboxEncoding_coco_focalsmoothloss.py
-mmdet/.mim/configs/cascade_rcnn_swin-t_fpn_LGM_SENet_BboxEncoding_coco_focalsmoothloss_bar.py
+mmdet/.mim/configs/cascade_rcnn_swin-t-p4-w7_fpn_1x_coco.py
+mmdet/.mim/configs/cascade_rcnn_swin-t_fpn_LGF_VCE_PCE_coco_focalsmoothloss.py
+mmdet/.mim/configs/cascade_rcnn_x101_64x4d_fpn_20e_coco.py
+mmdet/.mim/configs/detr.py
+mmdet/.mim/configs/faster_rcnn_x101_64x4d_fpn_2x_coco.py
 mmdet/.mim/configs/_base_/default_runtime.py
 mmdet/.mim/configs/_base_/datasets/cityscapes_detection.py
 mmdet/.mim/configs/_base_/datasets/cityscapes_instance.py
