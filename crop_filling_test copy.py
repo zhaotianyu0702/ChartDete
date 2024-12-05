@@ -47,7 +47,7 @@ def process_image(input_path, model):
 
         for i, bbox in enumerate(plot_area_bboxes):
             x1, y1, x2, y2, score = bbox
-            y1, x1, x2 = y1 - 25, x1 - 4, x2 + 2
+            y1, x1, x2 = y1 - 10, x1 - 4, x2 + 2
             if score >= 0.3:
                 cropped_img = img[int(y1):int(y2), int(x1):int(x2)]
                 image = cropped_img
@@ -56,7 +56,7 @@ def process_image(input_path, model):
                 pixels = image_hsv.reshape(-1, 3)  # Reshape to a list of HSV pixels
 
                 # Perform K-means clustering to group similar colors in HSV space
-                num_colors = 10  # Adjust to the desired number of dominant colors
+                num_colors = 15  # Adjust to the desired number of dominant colors
                 kmeans = KMeans(n_clusters=num_colors, random_state=42)
                 kmeans.fit(pixels)
                 dominant_colors = np.round(kmeans.cluster_centers_).astype(int)
@@ -115,7 +115,7 @@ def process_image(input_path, model):
                 cumulative_heights = {}
 
                 # Threshold for grouping nearby x-locations
-                x_group_threshold = 5
+                x_group_threshold = 10
 
                 def find_nearest_x(x, x_groups):
                     """Find the nearest x in the existing groups within the threshold."""
@@ -133,32 +133,32 @@ def process_image(input_path, model):
 
                     # Detect best corners
                     quality_levels = np.arange(0.1, 0.6, 0.1)
-                    min_distances = np.arange(10, 60, 10)
+                    min_distances = np.arange(20, 70, 10)
                     best_corners = detect_best_corners(gray, quality_levels, min_distances)
 
                     if best_corners is not None:
                         bar_heights = [int(height * bar_height_factor) for height in [cropped_img.shape[0] - y for _, y in best_corners]]
                         bar_positions = [x for x, _ in best_corners]
-                        bar_width = max(5, int(np.mean(np.diff(bar_positions)) * 1 / 3)) if len(bar_positions) > 1 else 5
+                        bar_width = 20
                         line_color_rgb = cv2.cvtColor(np.uint8([[color]]), cv2.COLOR_HSV2RGB)[0][0]
 
-                        for x, height in zip(bar_positions, bar_heights):
-                            # Group x-locations based on the threshold
-                            grouped_x = find_nearest_x(x, cumulative_heights.keys())
-                            if grouped_x not in cumulative_heights:
-                                cumulative_heights[grouped_x] = 0
+                    for x, height in zip(bar_positions, bar_heights):
+                        # Group x-locations based on the threshold
+                        grouped_x = find_nearest_x(x, cumulative_heights.keys())
+                        if grouped_x not in cumulative_heights:
+                            cumulative_heights[grouped_x] = 0
 
-                            # Determine the top position for this bar based on cumulative height
-                            top_y = cropped_img.shape[0] - cumulative_heights[grouped_x] - height
-                            bottom_y = cropped_img.shape[0] - cumulative_heights[grouped_x]
+                        # Determine the top position for this bar based on cumulative height
+                        top_y = cropped_img.shape[0] - cumulative_heights[grouped_x] - height
+                        bottom_y = cropped_img.shape[0] - cumulative_heights[grouped_x]
 
-                            # Update the cumulative height for this x-position
-                            cumulative_heights[grouped_x] += height
+                        # Update the cumulative height for this x-position
+                        cumulative_heights[grouped_x] += height
 
-                            # Draw the bar
-                            top_left = (grouped_x - bar_width // 2, top_y)
-                            bottom_right = (grouped_x + bar_width // 2, bottom_y)
-                            cv2.rectangle(composite_image, top_left, bottom_right, tuple(map(int, line_color_rgb[::-1])), -1)
+                        # Draw the bar with the calculated fixed width
+                        top_left = (grouped_x - bar_width // 2, top_y)
+                        bottom_right = (grouped_x + bar_width // 2, bottom_y)
+                        cv2.rectangle(composite_image, top_left, bottom_right, tuple(map(int, line_color_rgb[::-1])), -1)
 
 
 
@@ -182,6 +182,7 @@ def process_image(input_path, model):
                 plt.subplot(1, 3, 3)
                 plt.imshow(cv2.cvtColor(filled_img, cv2.COLOR_BGR2RGB))
                 plt.title("Final Image with Filled Plot")
+                cv2.imwrite('final_bar_chart.png', filled_img)
                 plt.axis("off")
 
                 plt.tight_layout()
@@ -195,7 +196,7 @@ checkpoint_file = './work_dirs/cascade_rcnn_swin-t_fpn_LGF_VCE_PCE_coco_focalsmo
 model = init_detector(config_file, checkpoint_file, device='cuda:0')
 
 # Input image path
-input_image_path = 'line_chart_eg9.png'
+input_image_path = 'line_chart_eg7.png'
 
 # Process and plot results
 process_image(input_image_path, model)
